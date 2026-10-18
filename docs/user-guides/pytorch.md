@@ -369,14 +369,12 @@ parse these arguments directly.
 
 ## FSDP vs. DeepSpeed Comparison
 
-| Aspect | FSDP (via Torch Plugin) | DeepSpeed (via Torch Plugin) |
+| | FSDP (via Torch Plugin) | DeepSpeed (via Torch Plugin) |
 |---|---|---|
-| **Launcher** | `torchrun` utility | `torchrun` with `--deepspeed` arg |
+| **Launcher** | `torchrun` | `torchrun` with `--deepspeed` |
 | **Configuration mechanism** | FSDP flags passed as `torchrun` args: `--fsdp`, `--fsdp-sharding`, `--fsdp-backward-prefetch`, `--fsdp-limit-all-gathers` | DeepSpeed JSON config file mounted as ConfigMap/volume; passed via `--deepspeed <path>` arg |
-| **Distributed settings supply** | PET_* env vars automatically injected by Torch plugin (`PET_NNODES`, `PET_NPROC_PER_NODE`, `PET_NODE_RANK`, `PET_MASTER_ADDR`, `PET_MASTER_PORT`) | Same PET_* env vars automatically injected; DeepSpeed config supplied separately |
-| **Hardware/topology considerations** | Designed for GPU clusters; sharding strategy depends on GPU count and model size; works with standard Kubernetes GPU nodes | Designed for GPU clusters; ZeRO stages optimize memory across nodes; requires NCCL/Gloo backend |
-| **Prerequisites** | PyTorch runtime (`torch-distributed`), `torchrun` available, GPU nodes with appropriate drivers | DeepSpeed runtime or ConfigMap with `deepspeed` package, `torchrun` available, GPU nodes with appropriate drivers |
-| **Limitations** | FSDP state dict format differs from DDP; model wrapping requires `FullyShardedDataParallel`; backward prefetch and limit-all-gathers have tradeoffs | DeepSpeed config JSON must be valid; `--deepspeed` arg requires mounted config file; some advanced ZeRO features may require specific runtime setup |
+| **Supported hardware topology** | GPU clusters; sharding strategy depends on GPU count and model size; works with standard Kubernetes GPU nodes | GPU clusters; ZeRO stages optimize memory across nodes; requires NCCL/Gloo backend |
+| **Known limitations** | FSDP state dict format differs from DDP; model wrapping requires `FullyShardedDataParallel`; backward prefetch and limit-all-gathers have tradeoffs; config depends on PyTorch version | DeepSpeed config JSON must be valid; `--deepspeed` arg requires mounted config file; some advanced ZeRO features may require specific runtime setup; config depends on DeepSpeed version |
 
 **Important**: The FSDP configuration (`--fsdp`, `--fsdp-sharding`, etc.) is handled
 by the `torchrun` launcher and the PyTorch runtime. The user's training script must

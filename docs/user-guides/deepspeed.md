@@ -482,6 +482,16 @@ data:
 
 
 
+
+
+## FSDP vs. DeepSpeed Comparison
+
+| | FSDP (via Torch Plugin) | DeepSpeed (via Torch Plugin) |
+|---|---|---|
+| **Launcher** | `torchrun` | `torchrun` with `--deepspeed` |
+| **Configuration mechanism** | FSDP flags passed as `torchrun` args: `--fsdp`, `--fsdp-sharding`, `--fsdp-backward-prefetch`, `--fsdp-limit-all-gathers` | DeepSpeed JSON config file mounted as ConfigMap/volume; passed via `--deepspeed <path>` arg |
+| **Supported hardware topology** | GPU clusters; sharding strategy depends on GPU count and model size; works with standard Kubernetes GPU nodes | GPU clusters; ZeRO stages optimize memory across nodes; requires NCCL/Gloo backend |
+| **Known limitations** | FSDP state dict format differs from DDP; model wrapping requires `FullyShardedDataParallel`; backward prefetch and limit-all-gathers have tradeoffs; config depends on PyTorch version | DeepSpeed config JSON must be valid; `--deepspeed` arg requires mounted config file; some advanced ZeRO features may require specific runtime setup; config depends on DeepSpeed version |
 ### TrainJob with DeepSpeed
 
 The following `TrainJob` demonstrates how to configure DeepSpeed through the Torch plugin.
